@@ -1,0 +1,27 @@
+# Ignorar carpetas de configuración y caché
+.gradle/
+build/
+out/
+.idea/
+*.iml
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Reportes de pruebas
+allure-results/
+allure-report/
+target/
+
+# Archivos de sistema de OS y editores
+*.swp
+*.swo
+*.bak
+
+# NodeJS (si usas algo de frontend en el proyecto)
+node_modules/
+dist/

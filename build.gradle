@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'io.qameta.allure' version '2.11.2'  // Versión más reciente
 }
 
 group 'org.example'
@@ -7,17 +8,89 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    //maven { url 'https://repo.cucumber.io/repository/cucumber-public/' }
+}
+
+configurations {
+    allureCli
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
-    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.28.1' // selenium
-    implementation group: 'io.cucumber', name: 'cucumber-java', version: '7.17.0'//cucumber java
-    testImplementation group: 'io.cucumber', name: 'cucumber-junit', version: '7.17.0'// junit
+    //JUNIT 4
+    testImplementation 'junit:junit:4.13.2'
+    //testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
 
+    // SELENIUM
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.28.1'
+
+    //CUCUMBER
+    implementation group: 'io.cucumber', name: 'cucumber-java', version: '7.17.0'
+    testImplementation 'io.cucumber:cucumber-java:7.17.0'
+    testImplementation group: 'io.cucumber', name: 'cucumber-junit', version: '7.17.0'// junit IMPORTANTISIMA
+
+    // LIBRERUA EXCEL
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
+    // Allure para Cucumber y reportes
+    testImplementation 'io.qameta.allure:allure-cucumber7-jvm:2.24.0'
+    //testImplementation 'io.qameta.allure:allure-junit5:2.24.0'
+
+    // CLI para generar el reporte
+    add("allureCli", "io.qameta.allure:allure-commandline:2.24.0")
+
+    // Para resolver el warning de SLF4J
+    testImplementation 'org.slf4j:slf4j-simple:2.0.12'
+    // Para resolver el warning de Log4j2
+    testImplementation 'org.slf4j:slf4j-simple:2.0.12'
+}
+
+// Configuración de Allure
+allure {
+    version = '2.24.0'
+    autoconfigure = true
+    aspectjweaver = true
+
+    useCucumberJVM {
+        version = '2.24.0'
+    }
 }
 
 test {
-    useJUnitPlatform()
+    //useJUnitPlatform()
+    useJUnit()
+    systemProperty "cucumber.features", "src/test/resources/features"
+    systemProperty "cucumber.glue", "StepDefs"
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    // Para ALLURE
+    systemProperty 'allure.results.directory', "$buildDir/allure-results"
+    systemProperty 'cucumber.plugin', 'io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm'
+    // Ejecuta las tareas del reporte después de que se hayan ejecutado los tests
+    finalizedBy 'generateAllureReport', 'openAllureReport'
 }
+
+
+task generateAllureReport(type: JavaExec) {
+    dependsOn test
+    classpath = configurations.allureCli
+    mainClass = 'io.qameta.allure.CommandLine'
+    args = [
+            'generate',
+            "$buildDir/allure-results",
+            '-o',
+            "$buildDir/reports/allure-report",
+            '--clean'
+    ]
+}
+
+task openAllureReport(type: Exec) {
+    dependsOn generateAllureReport
+    def allureExecutable = "C:\\Users\\uchih\\AppData\\Roaming\\npm\\allure.cmd" // <-- tu ruta aquí
+    def reportDir = "$buildDir/allure-results"
+
+    commandLine allureExecutable, 'serve', reportDir
+}
+
+// Configuración para que el build genere el reporte
+build.finalizedBy 'generateAllureReport'
