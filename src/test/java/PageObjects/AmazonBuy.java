@@ -1,5 +1,6 @@
 package PageObjects;
 
+import io.qameta.allure.Allure;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -116,6 +117,7 @@ public class AmazonBuy extends DriverChrome {
             System.err.println("Error en el bloque 'Cambiar dirección': " + e.getMessage());
             System.err.println("Clase: " + e.getClass().getName());
             System.err.println("Método: buyProducts");
+            ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
             // Buscar la línea exacta en el stack trace
             for (StackTraceElement element : e.getStackTrace()) {
                 if (element.getClassName().equals(AmazonBuy.class.getName())) {
@@ -123,7 +125,9 @@ public class AmazonBuy extends DriverChrome {
                     break;
                 }
             }
-            e.printStackTrace();
+            Allure.addAttachment("Detalle de error", "text/plain", e.getMessage());
+            // ⛔ Muy importante: volver a lanzar la excepción
+            throw new RuntimeException("Fallo en el método Payment", e);
         }
     }
 
@@ -193,19 +197,28 @@ public class AmazonBuy extends DriverChrome {
             // Verificar si el botón "Cambiar" está presente
             try {
                 Thread.sleep(3000);
-                //WebElement btnAddres = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@data-testid='Address_selectShipToThisAddress']")));
-                WebElement btnCambiar = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[normalize-space()='Cambiar'])[1]")));
+                WebElement btnAddressBefore = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@data-testid='Address_selectShipToThisAddress']")));
+                //WebElement btnCambiar = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[normalize-space()='Cambiar'])[1]")));
                 //WebElement btnChangeAddress = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h3[@class='a-color-state' and contains(., 'Agregar RFC o CURP para despacho de aduana')]")));
                 // Hacer clic en "Agregar una nueva dirección de entrega"
-                if (btnCambiar.isDisplayed()) {
-                    btnCambiar.click();
-                    WebElement btnAddres = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@data-testid=\"bottom-continue-button\" and @type=\"submit\" and contains(@class, \"a-button-input\")]")));
-                    btnAddres.click();
-                    WebElement cbxOmitir = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[normalize-space()='Omitir por ahora']")));
-                    cbxOmitir.click();
-                    WebElement cbxCurp = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[normalize-space()='Agregar un nuevo RFC o CURP']")));
+                if (btnAddressBefore.isDisplayed()) {
+                    btnAddressBefore.click();
+                    //WebElement btnAddresDiferent = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@data-testid=\"bottom-continue-button\" and @type=\"submit\" and contains(@class, \"a-button-input\")]")));
+                    //btnAddresDiferent.click();
+                    //WebElement btnChangeAduana = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='kycChangeLinkId']")));
+                    //btnChangeAduana.click();
+                    WebElement cbxOmitir = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[contains(text(),'Omitir')]")));
+                    try {
+                        cbxOmitir.click();
+                    } catch (ElementNotInteractableException e) {
+                        // Si falla, intenta con JavaScript como alternativa
+                        JavascriptExecutor js = (JavascriptExecutor) driver;
+                        js.executeScript("arguments[0].click();", cbxOmitir);
+                    }
+                    Thread.sleep(2000);
+                    WebElement cbxCurp = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[text()='Agregar un nuevo RFC o CURP']")));
                     cbxCurp.click();
-                    WebElement dropDaownCurp = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//span[@class='a-dropdown-prompt'])[1]")));
+                    WebElement dropDaownCurp = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[@class='a-button-text a-declarative' and @data-action='a-dropdown-button']")));
                     highlight.highlightElement(dropDaownCurp, "red", "transparent", "Dropdown");
                     dropDaownCurp.click();
                     WebElement optionRFC = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[normalize-space()='RFC'])[1]")));
@@ -227,6 +240,7 @@ public class AmazonBuy extends DriverChrome {
                 System.err.println("Error en el bloque 'Cambiar dirección': " + e.getMessage());
                 System.err.println("Clase: " + e.getClass().getName());
                 System.err.println("Método: buyProducts");
+                ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
                 // Buscar la línea exacta en el stack trace
                 for (StackTraceElement element : e.getStackTrace()) {
                     if (element.getClassName().equals(AmazonBuy.class.getName())) {
@@ -257,11 +271,14 @@ public class AmazonBuy extends DriverChrome {
                 btnValidateCP.click();
                 inputPhoneNumber.sendKeys(addressData.get("Num Telefono"));
                 inputInstructions.sendKeys(addressData.get("Instrucciones"));
-
+                ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
                 // Hacer clic en el botón de confirmación de dirección
                 Actions actions = new Actions(driver);
                 actions.moveToElement(btnDirection).perform();
                 btnDirection.click();
+                Allure.addAttachment("Detalle de error", "text/plain", e.getMessage());
+                // ⛔ Muy importante: volver a lanzar la excepción
+                throw new RuntimeException("Fallo en el método Payment", e);
             }
 
             Thread.sleep(2000); // Espera adicional para verificar el resultado
@@ -270,6 +287,7 @@ public class AmazonBuy extends DriverChrome {
             System.err.println("Error general en el método buyProducts: " + e.getMessage());
             System.err.println("Clase: " + e.getClass().getName());
             System.err.println("Método: buyProducts");
+            ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
             // Buscar la línea exacta en el stack trace
             for (StackTraceElement element : e.getStackTrace()) {
                 if (element.getClassName().equals(AmazonBuy.class.getName())) {
@@ -277,7 +295,9 @@ public class AmazonBuy extends DriverChrome {
                     break;
                 }
             }
-            e.printStackTrace(); // Imprimir el stack trace completo
+            Allure.addAttachment("Detalle de error", "text/plain", e.getMessage());
+            // ⛔ Muy importante: volver a lanzar la excepción
+            throw new RuntimeException("Fallo en el método Payment", e);
         }
     }
 
@@ -287,7 +307,7 @@ public class AmazonBuy extends DriverChrome {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             // 2. Crear objeto Actions
             Actions actions = new Actions(driver);
-            WebElement addCreditCard = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[normalize-space()='Agregar una tarjeta de crédito o débito'])[1]")));
+            WebElement addCreditCard = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[normalize-space()='Agregar una tarjeta de crédito o débito'])[0]")));//1
             addCreditCard.click();
             // Leer datos del Excel
             Map<String, String> paymentData = ExcelReader.readPaymentFromExcel(excelFilePath);
@@ -297,7 +317,6 @@ public class AmazonBuy extends DriverChrome {
             String cvv = Objects.requireNonNull(paymentData.get("CVV"), "El CVV no puede ser nulo");
             String monthInit = Objects.requireNonNull(paymentData.get("Month Init"), "El mes no puede ser nulo");
             String ageInit = Objects.requireNonNull(paymentData.get("Age Init"), "El año no puede ser nulo");
-
             WebElement iframePayment = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe[contains(@name, 'ApxSecureIframe')]")));
             driver.switchTo().frame(iframePayment);
             WebElement inputNumberCard = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[contains(@id, 'pp-') and contains(@id, '-17')]")));
@@ -318,7 +337,6 @@ public class AmazonBuy extends DriverChrome {
             }
             actions.sendKeys(Keys.ENTER).perform();
             highlight.highlightElement(month, "red", "transparent", "monthDrop");
-
             WebElement age = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//span[@role='button'])[2]")));
             age.click();
             int ageInteractions = Integer.parseInt(ageInit.trim()); // Elimina espacios y convierte a int
@@ -329,7 +347,6 @@ public class AmazonBuy extends DriverChrome {
             }
             actions.sendKeys(Keys.ENTER).perform();
             highlight.highlightElement(age, "red", "transparent", "ageDrop");
-
             WebElement inputCvv = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@autocomplete='off' and @maxlength='4' and @type='password']")));
             inputCvv.sendKeys(cvv);
             highlight.highlightElement(inputCvv, "red", "transparent", "inputCvv");
@@ -341,6 +358,7 @@ public class AmazonBuy extends DriverChrome {
             System.err.println("Error general en el método buyProducts: " + e.getMessage());
             System.err.println("Clase: " + e.getClass().getName());
             System.err.println("Método: Payment");
+            ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
             //Buscar la linea exactta en el stack trance
             for (StackTraceElement element : e.getStackTrace()) {
                 if (element.getClassName().equals(AmazonBuy.class.getName())) {
@@ -348,6 +366,9 @@ public class AmazonBuy extends DriverChrome {
                     break;
                 }
             }
+            Allure.addAttachment("Detalle de error", "text/plain", e.getMessage());
+            // ⛔ Muy importante: volver a lanzar la excepción
+            throw new RuntimeException("Fallo en el método Payment", e);
         }
     }
 }

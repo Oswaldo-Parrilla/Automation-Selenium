@@ -31,4 +31,16 @@ public class ScreenshotUtils {
 
         return filePath;
     }
+
+    public static void attachErrorDetails(WebDriver driver, String metodo, Exception e) {
+        try {
+            // 1. Screenshot en Allure
+            byte[] screenShotError = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+            Allure.getLifecycle().addAttachment("Error en método: " + metodo, "image/png", "png", screenShotError);
+            // 2. Detalle del error como texto
+            Allure.addAttachment("Detalle del error: ", "text/plain", e.getMessage());
+        } catch (Exception ex) {
+            System.err.println(" Falló el adjuntar el error a Allure: " + ex.getMessage());
+        }
+    }
 }

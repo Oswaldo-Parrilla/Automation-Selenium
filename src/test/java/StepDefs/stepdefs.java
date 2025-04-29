@@ -29,13 +29,13 @@ public class stepdefs {
 
     @And("I search the following products in the soriana page:")
     public void iSearchTheFollowingProductsInTheSorianaPage(List<String> products) throws Exception {
-        String filePath = "C:/Users/uchih/OneDrive/Documentos/Oswaldo/Automatizacion Amazon/productos.txt";
+        String filePath = "src/test/resources/productos.txt";
         AmazonBuy.choiseProducts(products, filePath);
     }
 
     @And("I proceed to payment")
     public void iProceedToPayment() {
-        String Filepath = "C:\\Users\\uchih\\OneDrive\\Documentos\\Oswaldo\\Automatizacion Amazon\\addressAmazon.xlsx";
+        String Filepath = "src/test/resources/addressAmazon.xlsx";
         try {
             AmazonBuy.buyProducts(Filepath);
         } catch (InterruptedException e) {
@@ -45,7 +45,7 @@ public class stepdefs {
     }
     @And("I add credit card pay")
     public void iAddCreaditCardPay() {
-        String Filepath = "C:\\Users\\uchih\\OneDrive\\Documentos\\Oswaldo\\Automatizacion Amazon\\addressAmazon.xlsx";
+        String Filepath = "src/test/resources/addressAmazon.xlsx";
         try {
             AmazonBuy.paymnet(Filepath);
         } catch (InterruptedException e) {

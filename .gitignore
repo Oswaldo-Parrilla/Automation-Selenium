@@ -25,3 +25,29 @@ target/
 # NodeJS (si usas algo de frontend en el proyecto)
 node_modules/
 dist/
+
+# Gradle (adicional)
+gradle-wrapper.jar
+gradle.properties
+!gradle-wrapper.properties
+
+# IDEs
+.vscode/
+!.vscode/settings.json
+.settings/
+.classpath
+.project
+bin/
+nbproject/
+
+# Seguridad (credenciales/entorno)
+.env
+*.key
+*.p12
+*.keystore
+*.jks
+config/application-*.properties
+
+# Logs y temporales
+logs/
+tmp/
