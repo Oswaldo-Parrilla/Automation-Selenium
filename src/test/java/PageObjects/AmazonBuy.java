@@ -77,12 +77,14 @@ public class AmazonBuy extends DriverChrome {
 
                 // Obtener la contraseña desencriptada
                 String password = getDecryptedPassword();
-                WebElement inputEmail = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='ap_email']")));
+                WebElement inputEmail = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='ap_email_login']")));
                 inputEmail.click();
                 inputEmail.sendKeys(email);
                 highlight.highlightElement(inputEmail, "red", "transparent", "Input_Email");
-                WebElement btnContinue = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='continue']")));
+                WebElement btnContinue = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@aria-labelledby='continue-announce' and @type='submit']")));
                 btnContinue.click();
+                //WebElement txtLogin = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[normalize-space(text())='Iniciar sesión']")));
+//                txtLogin.click();
                 WebElement inputPassword = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='ap_password']")));
                 inputPassword.clear();
                 inputPassword.sendKeys(password);
@@ -99,11 +101,11 @@ public class AmazonBuy extends DriverChrome {
             String password = getDecryptedPassword();
             WebElement login = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[normalize-space()='Cuenta y Listas']")));
             login.click();
-            WebElement inputEmail = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='ap_email']")));
+            WebElement inputEmail = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='ap_email_login']")));
             inputEmail.click();
             inputEmail.sendKeys(email);
             highlight.highlightElement(inputEmail, "red", "transparent", "Input_Email");
-            WebElement btnContinue = driver.findElement(By.xpath("//input[@id='continue']"));
+            WebElement btnContinue = driver.findElement(By.xpath("//input[@aria-labelledby='continue-announce' and @type='submit']"));
             btnContinue.click();
             WebElement inputPassword = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='ap_password']")));
             inputPassword.clear();
@@ -114,14 +116,14 @@ public class AmazonBuy extends DriverChrome {
             CloseRFC.deleteRFC();
             Thread.sleep(1000);
             //Manejo de excepciones al cambiar direccion
-            System.err.println("Error en el bloque 'Cambiar dirección': " + e.getMessage());
+            System.err.println("⛔ Error en el bloque 'Cambiar dirección': " + e.getMessage());
             System.err.println("Clase: " + e.getClass().getName());
             System.err.println("Método: buyProducts");
             ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
             // Buscar la línea exacta en el stack trace
             for (StackTraceElement element : e.getStackTrace()) {
                 if (element.getClassName().equals(AmazonBuy.class.getName())) {
-                    System.err.println("Línea exacta: " + element.getLineNumber());
+                    System.err.println("⛔ Línea exacta: " + element.getLineNumber());
                     break;
                 }
             }
@@ -197,12 +199,14 @@ public class AmazonBuy extends DriverChrome {
             // Verificar si el botón "Cambiar" está presente
             try {
                 Thread.sleep(3000);
-                WebElement btnAddressBefore = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@data-testid='Address_selectShipToThisAddress']")));
+                WebElement btnAddressBefore = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[normalize-space(text())='Cambiar' and @aria-label='Cambiar dirección de entrega']")));
                 //WebElement btnCambiar = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[normalize-space()='Cambiar'])[1]")));
                 //WebElement btnChangeAddress = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h3[@class='a-color-state' and contains(., 'Agregar RFC o CURP para despacho de aduana')]")));
                 // Hacer clic en "Agregar una nueva dirección de entrega"
                 if (btnAddressBefore.isDisplayed()) {
                     btnAddressBefore.click();
+                    WebElement btnConfirm = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@type='submit' and @data-testid='bottom-continue-button']")));
+                    btnConfirm.click();
                     //WebElement btnAddresDiferent = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@data-testid=\"bottom-continue-button\" and @type=\"submit\" and contains(@class, \"a-button-input\")]")));
                     //btnAddresDiferent.click();
                     //WebElement btnChangeAduana = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='kycChangeLinkId']")));
@@ -227,6 +231,12 @@ public class AmazonBuy extends DriverChrome {
                     WebElement inputRFC = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@name='sif_kyc_xborder_ID_NUMBER']")));
                     inputRFC.sendKeys("PACO940318292");
                     highlight.highlightElement(inputRFC, "red", "transparent", "InputRFC");
+
+                    WebElement mailCurp = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@name='sif_kyc_xborder_EMAIL_ID']")));
+                    //((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", mailCurp);
+                    mailCurp.sendKeys("amazon.compras.oswa@gmail.com");
+                    highlight.highlightElement(mailCurp, "red", "transparent", "MailCurp");
+
                     WebElement inputIdentifier = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sif_kyc_xborder_SAVE_ID_AS']")));
                     inputIdentifier.clear();
                     inputIdentifier.sendKeys("Testing");
@@ -237,14 +247,14 @@ public class AmazonBuy extends DriverChrome {
                 }
             } catch (Exception e) {
                 //Manejo de excepciones al cambiar direccion
-                System.err.println("Error en el bloque 'Cambiar dirección': " + e.getMessage());
+                System.err.println("⛔ Error en el bloque 'Cambiar dirección': " + e.getMessage());
                 System.err.println("Clase: " + e.getClass().getName());
                 System.err.println("Método: buyProducts");
                 ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
                 // Buscar la línea exacta en el stack trace
                 for (StackTraceElement element : e.getStackTrace()) {
                     if (element.getClassName().equals(AmazonBuy.class.getName())) {
-                        System.err.println("Línea exacta: " + element.getLineNumber());
+                        System.err.println("⛔ Línea exacta: " + element.getLineNumber());
                         break;
                     }
                 }
@@ -284,14 +294,14 @@ public class AmazonBuy extends DriverChrome {
             Thread.sleep(2000); // Espera adicional para verificar el resultado
         } catch (Exception e) {
             // Manejo de excepciones generales
-            System.err.println("Error general en el método buyProducts: " + e.getMessage());
+            System.err.println("⛔ Error general en el método buyProducts: " + e.getMessage());
             System.err.println("Clase: " + e.getClass().getName());
             System.err.println("Método: buyProducts");
             ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
             // Buscar la línea exacta en el stack trace
             for (StackTraceElement element : e.getStackTrace()) {
                 if (element.getClassName().equals(AmazonBuy.class.getName())) {
-                    System.err.println("Línea exacta: " + element.getLineNumber());
+                    System.err.println("⛔ Línea exacta: " + element.getLineNumber());
                     break;
                 }
             }
@@ -307,7 +317,7 @@ public class AmazonBuy extends DriverChrome {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             // 2. Crear objeto Actions
             Actions actions = new Actions(driver);
-            WebElement addCreditCard = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[normalize-space()='Agregar una tarjeta de crédito o débito'])[0]")));//1
+            WebElement addCreditCard = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[text()='Agregar una tarjeta de crédito o débito']")));//1
             addCreditCard.click();
             // Leer datos del Excel
             Map<String, String> paymentData = ExcelReader.readPaymentFromExcel(excelFilePath);
@@ -319,7 +329,7 @@ public class AmazonBuy extends DriverChrome {
             String ageInit = Objects.requireNonNull(paymentData.get("Age Init"), "El año no puede ser nulo");
             WebElement iframePayment = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe[contains(@name, 'ApxSecureIframe')]")));
             driver.switchTo().frame(iframePayment);
-            WebElement inputNumberCard = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[contains(@id, 'pp-') and contains(@id, '-17')]")));
+            WebElement inputNumberCard = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='addCreditCardNumber' and contains(@class, 'pmts-account-Number')]")));
             inputNumberCard.sendKeys(cardNumber);
             highlight.highlightElement(inputNumberCard, "red", "transparent", "inputNumberCard");
             WebElement inputNameCard = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@name='ppw-accountHolderName']")));
@@ -355,14 +365,14 @@ public class AmazonBuy extends DriverChrome {
             driver.close();
 
         } catch (Exception e) {
-            System.err.println("Error general en el método buyProducts: " + e.getMessage());
+            System.err.println("⛔ Error general en el método buyProducts: " + e.getMessage());
             System.err.println("Clase: " + e.getClass().getName());
             System.err.println("Método: Payment");
             ScreenshotUtils.attachErrorDetails(driver, "Payment", e);
             //Buscar la linea exactta en el stack trance
             for (StackTraceElement element : e.getStackTrace()) {
                 if (element.getClassName().equals(AmazonBuy.class.getName())) {
-                    System.err.println("Linea exacta: " + element.getLineNumber());
+                    System.err.println("⛔ Linea exacta: " + element.getLineNumber());
                     break;
                 }
             }

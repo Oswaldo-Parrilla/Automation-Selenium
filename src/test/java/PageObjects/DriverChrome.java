@@ -12,7 +12,7 @@ public class DriverChrome {
     static WebDriver driver;
 
     public static void openBrowser() throws InterruptedException {
-        System.setProperty("webdriver.chrome.driver", "C:\\Chrome Driver Selenium\\chromedriver_135.0.7049.42.exe");
+        System.setProperty("webdriver.chrome.driver", "C:\\Chrome Driver Selenium\\chromedriver_137.0.7151.69.exe");
         ChromeOptions options = new ChromeOptions();
         options.setExperimentalOption("useAutomationExtension", false);
         options.addArguments("--disable-blink-features=AutomationControlled");
